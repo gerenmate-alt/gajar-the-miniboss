@@ -17,7 +17,7 @@
   let assetsLoaded = 0;
   const assetKeys = [
     'character', 'character_sticker', 'head', 'torso', 'left_leg', 'right_leg', 'head_icon',
-    'le_bandit', 'le_bandit_squashed', 'le_bandit_full', 'le_bandit_full_squashed'
+    'enemy_bandit', 'enemy_bandit_squashed', 'enemy_egyptian', 'enemy_egyptian_squashed'
   ];
   assetKeys.forEach((key) => {
     const im = new Image();
@@ -1613,9 +1613,9 @@
 
       // 1. SQUASHED STATE (After being stomped)
       if (en.state === 'squashed') {
-        const sqImg = imgs.le_bandit_full_squashed || imgs.le_bandit_squashed;
-        if (sqImg && sqImg.complete && (en.type === 'goomba' || en.type === 'paragoomba')) {
-          ctx.drawImage(sqImg, en.x - 8, en.y + en.h - 22, en.w + 16, 22);
+        const sqImg = (en.type === 'koopa') ? imgs.enemy_egyptian_squashed : imgs.enemy_bandit_squashed;
+        if (sqImg && sqImg.complete) {
+          ctx.drawImage(sqImg, en.x - 10, en.y + en.h - 22, en.w + 20, 22);
         } else {
           ctx.translate(cx, en.y + en.h - 6);
           ctx.scale(1.3, 0.35);
@@ -1628,7 +1628,7 @@
         continue;
       }
 
-      // 2. LE BANDIT MONSTER (Goomba & Para-Goomba)
+      // 2. ENEMY 1: LE BANDIT (Goomba / Para-Goomba)
       if (en.type === 'goomba' || en.type === 'paragoomba') {
         // Wings for Para-Goomba
         if (en.type === 'paragoomba') {
@@ -1643,90 +1643,53 @@
           ctx.stroke();
         }
 
-        // Draw FULL Le Bandit Character clearly!
-        const bImg = imgs.le_bandit_full || imgs.le_bandit;
+        // Draw High-Res LE BANDIT Character!
+        const bImg = imgs.enemy_bandit;
         if (bImg && bImg.complete) {
-          const tilt = Math.sin(en.animPhase) * 0.06;
+          const tilt = Math.sin(en.animPhase) * 0.05;
           ctx.translate(cx, en.y + en.h);
           ctx.rotate(tilt);
-          // Scale to a prominent, clear size: 52px width x 64px height
+          // High-res, crisp display: 52px width x 64px height
           const bw = 52;
           const bh = 64;
           ctx.drawImage(bImg, -bw / 2, -bh, bw, bh);
         } else {
-          // Sharp High-Contrast Monster Fallback
           ctx.fillStyle = '#b45309';
           ctx.fillRect(en.x, en.y, en.w, en.h);
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(en.x + 4, en.y + 6, 8, 8);
-          ctx.fillRect(en.x + 20, en.y + 6, 8, 8);
         }
       } 
-      // 3. KOOPA TROOPA (The Green Turtle / Monster)
+      // 3. ENEMY 2: EGYPTIAN BANDIT (Koopa)
       else if (en.type === 'koopa') {
         if (en.state === 'shell_idle' || en.state === 'shell_move') {
-          // Spinning / sliding shell
-          ctx.fillStyle = '#22c55e';
-          ctx.beginPath();
-          ctx.arc(cx, en.y + 18, 18, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#0f172a';
-          ctx.lineWidth = 3;
-          ctx.stroke();
-
-          // Shell pattern rings
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(cx, en.y + 18, 11, 0, Math.PI * 2);
-          ctx.stroke();
+          // Flattened/rolling Egyptian Staff Shell
+          const sqImg = imgs.enemy_egyptian_squashed;
+          if (sqImg && sqImg.complete) {
+            ctx.drawImage(sqImg, en.x - 8, en.y + en.h - 26, en.w + 16, 26);
+          } else {
+            ctx.fillStyle = '#eab308';
+            ctx.beginPath();
+            ctx.arc(cx, en.y + 18, 18, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
         } else {
-          // Walking Koopa Monster - large, vibrant and clear
-          const step = Math.sin(en.animPhase) * 4;
-          
-          // Orange feet with outline
-          ctx.fillStyle = '#f97316';
-          ctx.fillRect(cx - 14, en.y + 36 + step, 10, 12);
-          ctx.fillRect(cx + 4, en.y + 36 - step, 10, 12);
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(cx - 14, en.y + 36 + step, 10, 12);
-          ctx.strokeRect(cx + 4, en.y + 36 - step, 10, 12);
-
-          // Green spiked shell body
-          ctx.fillStyle = '#16a34a';
-          ctx.beginPath();
-          ctx.ellipse(cx, en.y + 24, 18, 18, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
-
-          // Yellow shell rim
-          ctx.fillStyle = '#fef08a';
-          ctx.beginPath();
-          ctx.ellipse(cx, en.y + 26, 12, 10, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Monster Head
-          const hx = en.dir === -1 ? cx - 14 : cx + 14;
-          ctx.fillStyle = '#facc15';
-          ctx.beginPath();
-          ctx.arc(hx, en.y + 12, 12, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          // Monster Eye
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(hx + (en.dir === -1 ? -3 : 3), en.y + 9, 5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#000000';
-          ctx.beginPath();
-          ctx.arc(hx + (en.dir === -1 ? -4 : 4), en.y + 9, 2.5, 0, Math.PI * 2);
-          ctx.fill();
+          // Walking Egyptian Pharaoh Bandit Monster
+          const egImg = imgs.enemy_egyptian;
+          if (egImg && egImg.complete) {
+            const tilt = Math.sin(en.animPhase) * 0.05;
+            ctx.translate(cx, en.y + en.h);
+            ctx.scale(en.dir, 1);
+            ctx.rotate(tilt);
+            // High-res, crisp display: 54px width x 64px height
+            const ew = 54;
+            const eh = 64;
+            ctx.drawImage(egImg, -ew / 2, -eh, ew, eh);
+          } else {
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(en.x, en.y, en.w, en.h);
+          }
         }
       }
 
