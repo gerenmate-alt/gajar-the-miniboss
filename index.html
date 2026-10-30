@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Gajar The Miniboss — 2D Platformer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app-wrapper">
+    <!-- Top Mario-style Arcade HUD Bar -->
+    <header class="hud-bar">
+      <div class="hud-stats">
+        <div class="stat-item">
+          <span class="stat-label">GAJAR</span>
+          <span class="stat-value" id="hudScore">000000</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-label">ÉRMÉK</span>
+          <span class="stat-value gold" id="hudCoins">🪙 x00</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-label">VILÁG</span>
+          <span class="stat-value" id="hudWorld">RANDOM</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-label">IDŐ</span>
+          <span class="stat-value gold" id="hudTime">300</span>
+        </div>
+
+        <div class="stat-item">
+          <span class="stat-label">ÉLETEK</span>
+          <span class="stat-value">
+            <img id="hudHeadIcon" class="hud-head-icon" src="assets/head_icon.png" alt="Gajar" />
+            <span id="hudLives">x3</span>
+          </span>
+        </div>
+
+        <span id="hudPowerBadge" class="power-badge mega">₿ BITCOIN POWER</span>
+      </div>
+
+      <!-- Quick Controls -->
+      <div class="hud-controls">
+        <button class="hud-btn" onclick="window.BigHeadGame.startRandomLevel()" title="Generálj egy teljesen új random pályát!" style="background:#7c3aed; border-color:#c084fc;">🎲 ÚJ RANDOM PÁLYA</button>
+        <button class="hud-btn" onclick="window.BigHeadGame.toggleScoreboard()" title="Toplista és Rekordok" style="background:#0284c7; border-color:#7dd3fc;">🏆 SCORE BOARD</button>
+        <button class="hud-btn" id="muteBtn" onclick="window.BigHeadGame.toggleMute()">🔊 Hang: BE</button>
+        <button class="hud-btn" onclick="window.BigHeadGame.toggleTouchControls()" title="Képernyőgombok megjelenítése">📱</button>
+        <button class="hud-btn" onclick="window.BigHeadGame.toggleFullscreen()" title="Teljes képernyő">⛶</button>
+      </div>
+    </header>
+
+    <!-- Main 16:9 Game Canvas Container -->
+    <main class="canvas-container">
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+      <!-- Title / Pause / Victory / Game Over Overlay -->
+      <div id="gameOverlay" class="overlay">
+        <div class="title-card">
+          <div class="hero-showcase">
+            <img id="heroStickerImg" src="assets/character_sticker.png" alt="Big Head Character" />
+          </div>
+          <div class="title-content">
+            <span id="overlayBadge" class="game-badge">MARIO KLASSZIKUS</span>
+            <h1 id="overlayTitle" class="game-title">GAJAR THE MINIBOSS</h1>
+            <p id="overlaySubtitle" class="game-subtitle">
+              Kapd el a <b>Bitcoinokat</b> ₿, változz át <b>Lájk Királlyá</b> 😎, taposd le <b>Le Bandit</b> mérges fejeit 🦝 és mássz fel a toplista élére!
+            </p>
+
+            <div class="controls-grid">
+              <div class="key-hint"><kbd>A</kbd> <kbd>D</kbd> vagy <kbd>◀</kbd> <kbd>▶</kbd> Mozgás</div>
+              <div class="key-hint"><kbd>SPACE</kbd> / <kbd>W</kbd> / <kbd>▲</kbd> Ugrás</div>
+              <div class="key-hint"><kbd>SHIFT</kbd> / <kbd>X</kbd> Sprint & 👍 Lövés</div>
+              <div class="key-hint"><kbd>P</kbd> Szünet &nbsp;|&nbsp; <kbd>M</kbd> Némítás</div>
+            </div>
+
+            <div class="btn-Row">
+              <button id="primaryActionBtn" class="play-btn">▶ ÚJ RANDOM PÁLYA INDÍTÁSA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- On-Screen Touch / Mouse Controls -->
+      <div id="touchControls" class="touch-controls">
+        <div class="touch-group">
+          <button id="btnLeft" class="touch-btn">◀</button>
+          <button id="btnRight" class="touch-btn">▶</button>
+        </div>
+        <div class="touch-group">
+          <button id="btnFire" class="touch-btn action-fire" title="Sprint & Lájk Lövés">👍</button>
+          <button id="btnJump" class="touch-btn action-jump" title="Ugrás">▲</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="footer-hint">
+      <span>💡 <b>Tipp:</b> Üsd meg alulról a <b>?</b> blokkokat a nagy fejeddel: az első <b>🍄 Mega Fejet</b> ad, a második <b>😎 Lájk Király</b> erőt (👍 lövés <kbd>X</kbd> vagy <kbd>SHIFT</kbd> gombbal)!</span>
+    </div>
+  </div>
+
+  <script src="assets.js"></script>
+  <script src="audio.js"></script>
+  <script src="levels.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
