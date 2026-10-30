@@ -15,7 +15,10 @@
   // Load cutout images from window.GAME_ASSETS
   const imgs = {};
   let assetsLoaded = 0;
-  const assetKeys = ['character', 'character_sticker', 'head', 'torso', 'left_leg', 'right_leg', 'head_icon', 'le_bandit', 'le_bandit_squashed'];
+  const assetKeys = [
+    'character', 'character_sticker', 'head', 'torso', 'left_leg', 'right_leg', 'head_icon',
+    'le_bandit', 'le_bandit_squashed', 'le_bandit_full', 'le_bandit_full_squashed'
+  ];
   assetKeys.forEach((key) => {
     const im = new Image();
     im.onload = () => {
@@ -1608,9 +1611,11 @@
       const cx = en.x + en.w / 2;
       const cy = en.y + en.h / 2;
 
+      // 1. SQUASHED STATE (After being stomped)
       if (en.state === 'squashed') {
-        if (imgs.le_bandit_squashed && imgs.le_bandit_squashed.complete && (en.type === 'goomba' || en.type === 'paragoomba')) {
-          ctx.drawImage(imgs.le_bandit_squashed, en.x - 2, en.y + en.h - 18, en.w + 4, 18);
+        const sqImg = imgs.le_bandit_full_squashed || imgs.le_bandit_squashed;
+        if (sqImg && sqImg.complete && (en.type === 'goomba' || en.type === 'paragoomba')) {
+          ctx.drawImage(sqImg, en.x - 8, en.y + en.h - 22, en.w + 16, 22);
         } else {
           ctx.translate(cx, en.y + en.h - 6);
           ctx.scale(1.3, 0.35);
@@ -1623,86 +1628,105 @@
         continue;
       }
 
+      // 2. LE BANDIT MONSTER (Goomba & Para-Goomba)
       if (en.type === 'goomba' || en.type === 'paragoomba') {
         // Wings for Para-Goomba
         if (en.type === 'paragoomba') {
           const flap = Math.sin(game.frame * 0.28) * 8;
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.ellipse(en.x - 6, en.y + 12 + flap, 10, 6, -0.4, 0, Math.PI * 2);
-          ctx.ellipse(en.x + en.w + 6, en.y + 12 + flap, 10, 6, 0.4, 0, Math.PI * 2);
+          ctx.ellipse(en.x - 8, en.y + 16 + flap, 12, 7, -0.4, 0, Math.PI * 2);
+          ctx.ellipse(en.x + en.w + 8, en.y + 16 + flap, 12, 7, 0.4, 0, Math.PI * 2);
           ctx.fill();
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         }
 
-        // Draw LE BANDIT Head as the Goomba!
-        if (imgs.le_bandit && imgs.le_bandit.complete) {
-          // Bob / tilt slightly when walking
-          const tilt = Math.sin(en.animPhase) * 0.08;
+        // Draw FULL Le Bandit Character clearly!
+        const bImg = imgs.le_bandit_full || imgs.le_bandit;
+        if (bImg && bImg.complete) {
+          const tilt = Math.sin(en.animPhase) * 0.06;
           ctx.translate(cx, en.y + en.h);
           ctx.rotate(tilt);
-          // Scale cleanly so the entire hat, eyes, mustache and orange beard are razor-sharp!
-          const bw = 46;
-          const bh = 58;
-          ctx.drawImage(imgs.le_bandit, -bw / 2, -bh, bw, bh);
+          // Scale to a prominent, clear size: 52px width x 64px height
+          const bw = 52;
+          const bh = 64;
+          ctx.drawImage(bImg, -bw / 2, -bh, bw, bh);
         } else {
-          // Fallback classic goomba
-          const step = Math.sin(en.animPhase) * 4;
-          ctx.fillStyle = '#0f172a';
-          ctx.beginPath();
-          ctx.arc(cx - 8, en.y + en.h - 4 + step, 5, 0, Math.PI * 2);
-          ctx.arc(cx + 8, en.y + en.h - 4 - step, 5, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = '#fde68a';
-          ctx.fillRect(cx - 9, en.y + 18, 18, 12);
-
+          // Sharp High-Contrast Monster Fallback
           ctx.fillStyle = '#b45309';
-          ctx.beginPath();
-          ctx.arc(cx, en.y + 18, 18, Math.PI, 0);
-          ctx.lineTo(cx + 18, en.y + 22);
-          ctx.lineTo(cx - 18, en.y + 22);
-          ctx.closePath();
-          ctx.fill();
+          ctx.fillRect(en.x, en.y, en.w, en.h);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(en.x + 4, en.y + 6, 8, 8);
+          ctx.fillRect(en.x + 20, en.y + 6, 8, 8);
         }
-      } else if (en.type === 'koopa') {
-        ctx.moveTo(cx - 12, en.y + 8);
-        ctx.lineTo(cx - 2, en.y + 12);
-        ctx.moveTo(cx + 12, en.y + 8);
-        ctx.lineTo(cx + 2, en.y + 12);
-        ctx.stroke();
-      } else if (en.type === 'koopa') {
+      } 
+      // 3. KOOPA TROOPA (The Green Turtle / Monster)
+      else if (en.type === 'koopa') {
         if (en.state === 'shell_idle' || en.state === 'shell_move') {
-          ctx.fillStyle = '#16a34a';
+          // Spinning / sliding shell
+          ctx.fillStyle = '#22c55e';
           ctx.beginPath();
-          ctx.arc(cx, en.y + 17, 16, 0, Math.PI * 2);
+          ctx.arc(cx, en.y + 18, 18, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = '#dcfce7';
+          ctx.strokeStyle = '#0f172a';
           ctx.lineWidth = 3;
           ctx.stroke();
-        } else {
-          // Walking Koopa Troopa
-          const step = Math.sin(en.animPhase) * 4;
-          ctx.fillStyle = '#facc15';
-          ctx.fillRect(cx - 10, en.y + 34 + step, 7, 10);
-          ctx.fillRect(cx + 4, en.y + 34 - step, 7, 10);
 
-          // Green Shell
+          // Shell pattern rings
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(cx, en.y + 18, 11, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          // Walking Koopa Monster - large, vibrant and clear
+          const step = Math.sin(en.animPhase) * 4;
+          
+          // Orange feet with outline
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(cx - 14, en.y + 36 + step, 10, 12);
+          ctx.fillRect(cx + 4, en.y + 36 - step, 10, 12);
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cx - 14, en.y + 36 + step, 10, 12);
+          ctx.strokeRect(cx + 4, en.y + 36 - step, 10, 12);
+
+          // Green spiked shell body
           ctx.fillStyle = '#16a34a';
           ctx.beginPath();
-          ctx.ellipse(cx, en.y + 24, 15, 16, 0, 0, Math.PI * 2);
+          ctx.ellipse(cx, en.y + 24, 18, 18, 0, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = '#dcfce7';
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          // Yellow shell rim
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.ellipse(cx, en.y + 26, 12, 10, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Monster Head
+          const hx = en.dir === -1 ? cx - 14 : cx + 14;
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.arc(hx, en.y + 12, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#000000';
           ctx.lineWidth = 2;
           ctx.stroke();
 
-          // Head
-          const hx = en.dir === -1 ? cx - 12 : cx + 12;
-          ctx.fillStyle = '#facc15';
+          // Monster Eye
+          ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(hx, en.y + 10, 10, 0, Math.PI * 2);
+          ctx.arc(hx + (en.dir === -1 ? -3 : 3), en.y + 9, 5, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#000000';
-          ctx.fillRect(hx + (en.dir === -1 ? -5 : 2), en.y + 7, 3, 4);
+          ctx.beginPath();
+          ctx.arc(hx + (en.dir === -1 ? -4 : 4), en.y + 9, 2.5, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
 
