@@ -268,12 +268,12 @@
     // Clone enemies
     enemies = (def.enemies || []).map((e) => ({
       x: e.x * T,
-      y: e.y * T - (e.type === 'koopa' ? 46 : 36),
-      baseY: e.y * T - 36,
+      y: e.y * T - 54,
+      baseY: e.y * T - 54,
       vx: -1.25,
       vy: 0,
-      w: 36,
-      h: e.type === 'koopa' ? 46 : 36,
+      w: 44,
+      h: 54,
       type: e.type,
       state: 'walk', // 'walk' | 'shell_idle' | 'shell_move' | 'squashed'
       deadTimer: 0,
@@ -1645,16 +1645,18 @@
 
         // Draw High-Res LE BANDIT Character!
         const bImg = imgs.enemy_bandit;
-        if (bImg && bImg.complete) {
+        if (bImg && bImg.complete && bImg.naturalWidth > 0) {
           const tilt = Math.sin(en.animPhase) * 0.05;
           ctx.translate(cx, en.y + en.h);
+          ctx.scale(en.dir, 1);
           ctx.rotate(tilt);
           // High-res, crisp display: 52px width x 64px height
           const bw = 52;
           const bh = 64;
           ctx.drawImage(bImg, -bw / 2, -bh, bw, bh);
         } else {
-          ctx.fillStyle = '#b45309';
+          // Fallback if image still loading
+          ctx.fillStyle = '#15803d';
           ctx.fillRect(en.x, en.y, en.w, en.h);
         }
       } 
@@ -1663,7 +1665,7 @@
         if (en.state === 'shell_idle' || en.state === 'shell_move') {
           // Flattened/rolling Egyptian Staff Shell
           const sqImg = imgs.enemy_egyptian_squashed;
-          if (sqImg && sqImg.complete) {
+          if (sqImg && sqImg.complete && sqImg.naturalWidth > 0) {
             ctx.drawImage(sqImg, en.x - 8, en.y + en.h - 26, en.w + 16, 26);
           } else {
             ctx.fillStyle = '#eab308';
@@ -1677,7 +1679,7 @@
         } else {
           // Walking Egyptian Pharaoh Bandit Monster
           const egImg = imgs.enemy_egyptian;
-          if (egImg && egImg.complete) {
+          if (egImg && egImg.complete && egImg.naturalWidth > 0) {
             const tilt = Math.sin(en.animPhase) * 0.05;
             ctx.translate(cx, en.y + en.h);
             ctx.scale(en.dir, 1);
@@ -1687,7 +1689,8 @@
             const eh = 64;
             ctx.drawImage(egImg, -ew / 2, -eh, ew, eh);
           } else {
-            ctx.fillStyle = '#3b82f6';
+            // Fallback if image still loading
+            ctx.fillStyle = '#0284c7';
             ctx.fillRect(en.x, en.y, en.w, en.h);
           }
         }
